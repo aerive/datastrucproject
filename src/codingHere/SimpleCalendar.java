@@ -1,15 +1,5 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
+package codingHere;
 
-//ni 100% chatgpt punya
-package projectdatastr;
-
-/**
- *
- * @author farijiha
- */
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
@@ -89,6 +79,14 @@ public class SimpleCalendar extends JFrame {
 
         calendarPanel.removeAll();
 
+        // Add day names as headers
+        String[] dayNames = {"Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"};
+        for (String day : dayNames) {
+            JLabel label = new JLabel(day, JLabel.CENTER);
+            label.setForeground(Color.BLUE);
+            calendarPanel.add(label);
+        }
+
         for (int i = 1; i < startDay; i++) {
             calendarPanel.add(new JLabel(""));
         }
@@ -103,6 +101,6 @@ public class SimpleCalendar extends JFrame {
     }
 
     public static void main(String[] args) {
-        new SimpleCalendar();
+        SwingUtilities.invokeLater(() -> new SimpleCalendar());
     }
 }
