@@ -77,7 +77,7 @@ public class EnhancedCalendar extends JFrame {
         });
 
         setVisible(true);
-
+        //Hello
     }
 
     public class Event {
