@@ -1,4 +1,4 @@
-package codingHere;
+package Planno2;
 
 import javax.swing.*;
 import java.awt.*;
