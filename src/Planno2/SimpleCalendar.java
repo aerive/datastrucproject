@@ -100,6 +100,7 @@ public class SimpleCalendar extends JFrame {
         repaint();
     }
 
+    //This one doesnt work
     public static void main(String[] args) {
         SwingUtilities.invokeLater(() -> new SimpleCalendar());
     }
