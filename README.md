@@ -32,3 +32,7 @@ git commit -m "Latest version's name"
 ```
 git push origin main
 ```
+
+### If you guys want to do some changes, make sure to let everyone know/doing pull request
+### Hopefully no error if we update things wor
+
