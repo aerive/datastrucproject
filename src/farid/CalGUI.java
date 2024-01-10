@@ -10,12 +10,13 @@ package projectdatastr;
  * @author farijiha
  */
 import java.awt.*;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import javax.swing.*;
 import java.util.*;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
-/*import java.awt.GridLayout;
-import java.util.Calendar;
-import javax.swing.JLabel;*/
 public class CalGUI extends javax.swing.JFrame {
 
     private int currentMonth;
@@ -51,28 +52,101 @@ public class CalGUI extends javax.swing.JFrame {
 
     private void updateCalendar() {
         String[] monthNames = {"January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"};
-
         monthLbl.setText(monthNames[currentMonth] + " " + currentYear);
 
         Calendar calendar = Calendar.getInstance();
+        calendar.setFirstDayOfWeek(Calendar.MONDAY); // Set the first day of the week to Monday
         calendar.set(currentYear, currentMonth, 1);
 
-        int startDay = calendar.get(Calendar.DAY_OF_WEEK);
+        int startDay = calendar.get(Calendar.DAY_OF_WEEK); // Get the day of the week for the 1st day of the month
         int numberOfDaysInMonth = calendar.getActualMaximum(Calendar.DAY_OF_MONTH);
+
+        // Calculate the starting day, considering Monday as the first day (adjust the startDay)
+        int firstDay = ((startDay - calendar.getFirstDayOfWeek()) + 7) % 7 + 1;
 
         calPanel.removeAll();
 
-        for (int i = 1; i < startDay; i++) {
+        // Add labels for the days of the week
+        String[] daysOfWeek = {"Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"};
+        for (String day : daysOfWeek) {
+            JLabel dayLabel = new JLabel(day, JLabel.CENTER);
+            calPanel.add(dayLabel);
+        }
+
+        for (int i = 1; i < firstDay; i++) {
             calPanel.add(new JLabel(""));
         }
 
+        Color datePanelColor = Color.PINK; // Choose your desired color here
+
         for (int day = 1; day <= numberOfDaysInMonth; day++) {
-            JLabel label = new JLabel(String.valueOf(day), JLabel.CENTER);
-            calPanel.add(label);
+            JPanel datePanel = new JPanel();
+            datePanel.setLayout(new BorderLayout());
+            datePanel.setBorder(BorderFactory.createLineBorder(Color.BLACK));
+
+            JLabel dayLabel = new JLabel(String.valueOf(day), JLabel.CENTER);
+            datePanel.add(dayLabel, BorderLayout.CENTER);
+
+            final int finalDay = day; // Variable needs to be final or effectively final to be used in the listener
+
+            // Add a mouse listener to each date panel
+            datePanel.addMouseListener(new MouseAdapter() {
+                @Override
+                public void mouseClicked(MouseEvent e) {
+                    addEvent(finalDay); // Call addEvent method when the panel is clicked
+                }
+            });
+            // Set a uniform background color for all date panels
+            datePanel.setBackground(datePanelColor);
+
+            calPanel.add(datePanel);
         }
 
         revalidate();
         repaint();
+    }
+
+    // Method to handle adding an event for a specific day
+    private void addEvent(int day) {
+        String event = JOptionPane.showInputDialog(this, "Enter event for " + monthLbl.getText() + " " + day + ":");
+        if (event != null && !event.isEmpty()) {
+            // Here, you can store the event for the given day
+            // For simplicity, let's display it in the text area with the desired format
+            SimpleDateFormat dateFormat = new SimpleDateFormat("dd MMMM yyyy");
+            Calendar calendar = Calendar.getInstance();
+            calendar.set(Calendar.YEAR, currentYear);
+            calendar.set(Calendar.MONTH, currentMonth);
+            calendar.set(Calendar.DAY_OF_MONTH, day);
+
+            String formattedDate = dateFormat.format(calendar.getTime());
+
+            String formattedEvent = String.format("Event on %s: %s\n", formattedDate, event);
+            taskTxtArea.append(formattedEvent);
+        }
+    }
+
+    // Method to handle the search operation
+    private void searchEvent() {
+        String searchInput = JOptionPane.showInputDialog(this, "Enter event to search:");
+        boolean found = false;
+
+        // Search through the stored events in taskTxtArea
+        Scanner scanner = new Scanner(taskTxtArea.getText());
+        while (scanner.hasNextLine()) {
+            String line = scanner.nextLine();
+            if (line.contains(searchInput)) {
+                found = true;
+                break;
+            }
+        }
+        scanner.close();
+
+        // Show the search result in a popup
+        if (found) {
+            JOptionPane.showMessageDialog(this, "Event found: " + searchInput);
+        } else {
+            JOptionPane.showMessageDialog(this, "Event not found.");
+        }
     }
 
     /**
@@ -89,7 +163,9 @@ public class CalGUI extends javax.swing.JFrame {
         nextBtn = new javax.swing.JButton();
         calPanel = new javax.swing.JPanel();
         jScrollPane1 = new javax.swing.JScrollPane();
-        jTextArea1 = new javax.swing.JTextArea();
+        taskTxtArea = new javax.swing.JTextArea();
+        searchBtn = new javax.swing.JButton();
+        editBtn = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
@@ -119,12 +195,26 @@ public class CalGUI extends javax.swing.JFrame {
         );
         calPanelLayout.setVerticalGroup(
             calPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 155, Short.MAX_VALUE)
+            .addGap(0, 271, Short.MAX_VALUE)
         );
 
-        jTextArea1.setColumns(20);
-        jTextArea1.setRows(5);
-        jScrollPane1.setViewportView(jTextArea1);
+        taskTxtArea.setColumns(20);
+        taskTxtArea.setRows(5);
+        jScrollPane1.setViewportView(taskTxtArea);
+
+        searchBtn.setText("Search");
+        searchBtn.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                searchBtnActionPerformed(evt);
+            }
+        });
+
+        editBtn.setText("Edit event");
+        editBtn.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                editBtnActionPerformed(evt);
+            }
+        });
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
@@ -141,10 +231,16 @@ public class CalGUI extends javax.swing.JFrame {
                         .addComponent(nextBtn))
                     .addGroup(layout.createSequentialGroup()
                         .addGap(55, 55, 55)
-                        .addComponent(calPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(18, 18, 18)
-                        .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 186, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                .addContainerGap(43, Short.MAX_VALUE))
+                        .addComponent(calPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 108, Short.MAX_VALUE)
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 186, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(53, 53, 53))
+            .addGroup(layout.createSequentialGroup()
+                .addGap(306, 306, 306)
+                .addComponent(searchBtn, javax.swing.GroupLayout.PREFERRED_SIZE, 101, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(76, 76, 76)
+                .addComponent(editBtn, javax.swing.GroupLayout.PREFERRED_SIZE, 101, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -156,12 +252,16 @@ public class CalGUI extends javax.swing.JFrame {
                     .addComponent(nextBtn))
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(layout.createSequentialGroup()
+                        .addGap(33, 33, 33)
+                        .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 280, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
                         .addGap(42, 42, 42)
-                        .addComponent(calPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addGroup(layout.createSequentialGroup()
-                        .addGap(9, 9, 9)
-                        .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 280, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                .addContainerGap(49, Short.MAX_VALUE))
+                        .addComponent(calPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 51, Short.MAX_VALUE)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(searchBtn)
+                    .addComponent(editBtn))
+                .addGap(27, 27, 27))
         );
 
         pack();
@@ -188,6 +288,33 @@ public class CalGUI extends javax.swing.JFrame {
         }
         updateCalendar();
     }//GEN-LAST:event_nextBtnActionPerformed
+
+    private void searchBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_searchBtnActionPerformed
+        // TODO add your handling code here:String searchTerm = JOptionPane.showInputDialog(this, "Enter event to search:");
+        searchEvent();
+    }//GEN-LAST:event_searchBtnActionPerformed
+
+    private void editBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_editBtnActionPerformed
+        if (!taskTxtArea.getText().isEmpty()) {
+            String[] events = taskTxtArea.getText().split("\n");
+            String[] options = Arrays.copyOfRange(events, 0, events.length); // Copy the events to display in the selection box
+
+            String selectedEvent = (String) JOptionPane.showInputDialog(this,
+                    "Select an event to edit:", "Edit Event",
+                    JOptionPane.PLAIN_MESSAGE, null, options, options[0]);
+
+            if (selectedEvent != null) {
+                String editedEvent = JOptionPane.showInputDialog(this,
+                        "Edit event:", selectedEvent);
+                if (editedEvent != null && !editedEvent.trim().isEmpty()) {
+                    // Replace the selected event with the edited one in the text area
+                    taskTxtArea.setText(taskTxtArea.getText().replace(selectedEvent, editedEvent));
+                }
+            }
+        } else {
+            JOptionPane.showMessageDialog(this, "No events to edit.");
+        }
+    }//GEN-LAST:event_editBtnActionPerformed
 
     /**
      * @param args the command line arguments
@@ -226,6 +353,7 @@ public class CalGUI extends javax.swing.JFrame {
 
         /* Create and display the form */
         java.awt.EventQueue.invokeLater(new Runnable() {
+            @Override
             public void run() {
                 new CalGUI().setVisible(true);
             }
@@ -234,10 +362,12 @@ public class CalGUI extends javax.swing.JFrame {
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JPanel calPanel;
+    private javax.swing.JButton editBtn;
     private javax.swing.JScrollPane jScrollPane1;
-    private javax.swing.JTextArea jTextArea1;
     private javax.swing.JLabel monthLbl;
     private javax.swing.JButton nextBtn;
     private javax.swing.JButton prevBtn;
+    private javax.swing.JButton searchBtn;
+    private javax.swing.JTextArea taskTxtArea;
     // End of variables declaration//GEN-END:variables
 }
