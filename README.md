@@ -33,6 +33,8 @@ git commit -m "Latest version's name"
 git push origin main
 ```
 
+###Document link
+- [Gdoc link](https://docs.google.com/document/d/1wYZyW1-Ds04uHBq-jSLF1V95dQRfIMAHqaOVysIMhoM/edit?pli=1)
 ### If you guys want to do some changes, make sure to let everyone know/doing pull request
 ### Make sure to Update the latest version of the GitHub from here to your local devices before doing works
 

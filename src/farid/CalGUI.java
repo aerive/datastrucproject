@@ -3,7 +3,7 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/GUIForms/JFrame.java to edit this template
  */
 //ni ada aku modify sikit and still guna gpt punya code
-package projectdatastr;
+package farid;
 
 /**
  *
@@ -21,6 +21,7 @@ public class CalGUI extends javax.swing.JFrame {
 
     private int currentMonth;
     private int currentYear;
+    private Node[][] events;
 
     /**
      * Creates new form CalGUI
@@ -31,9 +32,12 @@ public class CalGUI extends javax.swing.JFrame {
         Calendar calendar = Calendar.getInstance();
         currentMonth = calendar.get(Calendar.MONTH);
         currentYear = calendar.get(Calendar.YEAR);
+        events = new Node[6][7]; 
+        
         calPanel.setLayout(new GridLayout(0, 7));
         calPanel.setPreferredSize(new Dimension(420, 300));
 
+        
         updateCalendar();
         setVisible(true);
     }
@@ -50,6 +54,7 @@ public class CalGUI extends javax.swing.JFrame {
         }
     }
 
+    
     private void updateCalendar() {
         String[] monthNames = {"January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"};
         monthLbl.setText(monthNames[currentMonth] + " " + currentYear);
@@ -109,22 +114,55 @@ public class CalGUI extends javax.swing.JFrame {
     // Method to handle adding an event for a specific day
     private void addEvent(int day) {
         String event = JOptionPane.showInputDialog(this, "Enter event for " + monthLbl.getText() + " " + day + ":");
+        
         if (event != null && !event.isEmpty()) {
-            // Here, you can store the event for the given day
-            // For simplicity, let's display it in the text area with the desired format
-            SimpleDateFormat dateFormat = new SimpleDateFormat("dd MMMM yyyy");
-            Calendar calendar = Calendar.getInstance();
-            calendar.set(Calendar.YEAR, currentYear);
-            calendar.set(Calendar.MONTH, currentMonth);
-            calendar.set(Calendar.DAY_OF_MONTH, day);
-
-            String formattedDate = dateFormat.format(calendar.getTime());
-
-            String formattedEvent = String.format("Event on %s: %s\n", formattedDate, event);
-            taskTxtArea.append(formattedEvent);
+            Node newNode = new Node(event);
+            
+            //Check if there is an existing linked list for the day
+            
+            if (events[currentMonth][day-1]==null){
+                events[currentMonth][day-1]= newNode;
+            }
+            else {
+                //Append the new event to the existing linked list
+                Node current = events[currentMonth][day-1];
+                while(current.next!=null){
+                    current= current.next;
+                }
+                current.next= newNode;
+            }
+            // Display the updated events in the text area
+            displayEvents();
+            
+            
         }
     }
+    
+    // Method to display events in the text area
+    private void displayEvents() {
+        taskTxtArea.setText(""); // Clear the text area
 
+        for (int day = 1; day <= events[currentMonth].length; day++) {
+            Node current = events[currentMonth][day - 1];
+
+            // Display events for the current day
+            while (current != null) {
+                SimpleDateFormat dateFormat = new SimpleDateFormat("dd MMMM yyyy");
+                Calendar calendar = Calendar.getInstance();
+                calendar.set(Calendar.YEAR, currentYear);
+                calendar.set(Calendar.MONTH, currentMonth);
+                calendar.set(Calendar.DAY_OF_MONTH, day);
+
+                String formattedDate = dateFormat.format(calendar.getTime());
+
+                String formattedEvent = String.format("Event on %s: %s\n", formattedDate, current.event);
+                taskTxtArea.append(formattedEvent);
+
+                current = current.next;
+            }
+        }
+    }
+    
     // Method to handle the search operation
     private void searchEvent() {
         String searchInput = JOptionPane.showInputDialog(this, "Enter event to search:");
