@@ -21,23 +21,38 @@ public class CalGUI extends javax.swing.JFrame {
 
     private int currentMonth;
     private int currentYear;
-    private Node[][] events;
+    private java.util.List<Node[]> events;
 
-    /**
-     * Creates new form CalGUI
-     */
+    //Node class declaration
+    public static class Node {
+
+        String event;
+        Node next;
+
+        public Node(String event) {
+            this.event = event;
+            this.next = null;
+        }
+    }
+
     public CalGUI() {
         initComponents();
 
         Calendar calendar = Calendar.getInstance();
         currentMonth = calendar.get(Calendar.MONTH);
         currentYear = calendar.get(Calendar.YEAR);
-        events = new Node[6][7]; 
-        
+
+        // Initialize the events list
+        events = new ArrayList<>(12);
+        for (int month = 0; month < 12; month++) {
+            calendar.set(Calendar.MONTH, month);
+            int daysInMonth = calendar.getActualMaximum(Calendar.DAY_OF_MONTH);
+            events.add(new Node[daysInMonth]);
+        }
+
         calPanel.setLayout(new GridLayout(0, 7));
         calPanel.setPreferredSize(new Dimension(420, 300));
 
-        
         updateCalendar();
         setVisible(true);
     }
@@ -54,115 +69,113 @@ public class CalGUI extends javax.swing.JFrame {
         }
     }
 
-    
     private void updateCalendar() {
-        String[] monthNames = {"January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"};
-        monthLbl.setText(monthNames[currentMonth] + " " + currentYear);
+    String[] monthNames = {"January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"};
+    monthLbl.setText(monthNames[currentMonth] + " " + currentYear);
 
-        Calendar calendar = Calendar.getInstance();
-        calendar.setFirstDayOfWeek(Calendar.MONDAY); // Set the first day of the week to Monday
-        calendar.set(currentYear, currentMonth, 1);
+    Calendar calendar = Calendar.getInstance();
+    calendar.setFirstDayOfWeek(Calendar.MONDAY); // Set the first day of the week to Monday
+    calendar.set(currentYear, currentMonth, 1);
 
-        int startDay = calendar.get(Calendar.DAY_OF_WEEK); // Get the day of the week for the 1st day of the month
-        int numberOfDaysInMonth = calendar.getActualMaximum(Calendar.DAY_OF_MONTH);
+    int startDay = calendar.get(Calendar.DAY_OF_WEEK); // Get the day of the week for the 1st day of the month
+    int numberOfDaysInMonth = calendar.getActualMaximum(Calendar.DAY_OF_MONTH);
 
-        // Calculate the starting day, considering Monday as the first day (adjust the startDay)
-        int firstDay = ((startDay - calendar.getFirstDayOfWeek()) + 7) % 7 + 1;
+    // Calculate the starting day, considering Monday as the first day (adjust the startDay)
+    int firstDay = ((startDay - calendar.getFirstDayOfWeek()) + 7) % 7 + 1;
 
-        calPanel.removeAll();
+    calPanel.removeAll();
 
-        // Add labels for the days of the week
-        String[] daysOfWeek = {"Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"};
-        for (String day : daysOfWeek) {
-            JLabel dayLabel = new JLabel(day, JLabel.CENTER);
-            calPanel.add(dayLabel);
-        }
-
-        for (int i = 1; i < firstDay; i++) {
-            calPanel.add(new JLabel(""));
-        }
-
-        Color datePanelColor = Color.PINK; // Choose your desired color here
-
-        for (int day = 1; day <= numberOfDaysInMonth; day++) {
-            JPanel datePanel = new JPanel();
-            datePanel.setLayout(new BorderLayout());
-            datePanel.setBorder(BorderFactory.createLineBorder(Color.BLACK));
-
-            JLabel dayLabel = new JLabel(String.valueOf(day), JLabel.CENTER);
-            datePanel.add(dayLabel, BorderLayout.CENTER);
-
-            final int finalDay = day; // Variable needs to be final or effectively final to be used in the listener
-
-            // Add a mouse listener to each date panel
-            datePanel.addMouseListener(new MouseAdapter() {
-                @Override
-                public void mouseClicked(MouseEvent e) {
-                    addEvent(finalDay); // Call addEvent method when the panel is clicked
-                }
-            });
-            // Set a uniform background color for all date panels
-            datePanel.setBackground(datePanelColor);
-
-            calPanel.add(datePanel);
-        }
-
-        revalidate();
-        repaint();
+    // Add labels for the days of the week
+    String[] daysOfWeek = {"Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"};
+    for (String day : daysOfWeek) {
+        JLabel dayLabel = new JLabel(day, JLabel.CENTER);
+        calPanel.add(dayLabel);
     }
+
+    for (int i = 1; i < firstDay; i++) {
+        calPanel.add(new JLabel(""));
+    }
+
+    Color datePanelColor = Color.PINK; // Choose your desired color here
+
+    for (int day = 1; day <= numberOfDaysInMonth; day++) {
+        JPanel datePanel = new JPanel();
+        datePanel.setLayout(new BorderLayout());
+        datePanel.setBorder(BorderFactory.createLineBorder(Color.BLACK));
+
+        JLabel dayLabel = new JLabel(String.valueOf(day), JLabel.CENTER);
+        datePanel.add(dayLabel, BorderLayout.CENTER);
+
+        final int finalDay = day; // Variable needs to be final or effectively final to be used in the listener
+
+        // Add a mouse listener to each date panel
+        datePanel.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                addEvent(finalDay); // Call addEvent method when the panel is clicked
+            }
+        });
+        // Set a uniform background color for all date panels
+        datePanel.setBackground(datePanelColor);
+
+        calPanel.add(datePanel);
+    }
+
+    revalidate();
+    repaint();
+}
+
 
     // Method to handle adding an event for a specific day
     private void addEvent(int day) {
         String event = JOptionPane.showInputDialog(this, "Enter event for " + monthLbl.getText() + " " + day + ":");
-        
+
         if (event != null && !event.isEmpty()) {
             Node newNode = new Node(event);
-            
+
             //Check if there is an existing linked list for the day
-            
-            if (events[currentMonth][day-1]==null){
-                events[currentMonth][day-1]= newNode;
-            }
-            else {
+            Node[] monthlyEvents = events.get(currentMonth);
+            if (monthlyEvents[day - 1] == null) {
+                monthlyEvents[day - 1] = newNode;
+            } else {
                 //Append the new event to the existing linked list
-                Node current = events[currentMonth][day-1];
-                while(current.next!=null){
-                    current= current.next;
+                CalGUI.Node current = (CalGUI.Node)events.get(currentMonth)[day - 1];
+                while (current.next != null) {
+                    current = current.next;
                 }
-                current.next= newNode;
+                current.next = newNode;
             }
             // Display the updated events in the text area
             displayEvents();
-            
-            
+
         }
     }
-    
+
     // Method to display events in the text area
     private void displayEvents() {
-        taskTxtArea.setText(""); // Clear the text area
+    taskTxtArea.setText(""); // Clear the text area
 
-        for (int day = 1; day <= events[currentMonth].length; day++) {
-            Node current = events[currentMonth][day - 1];
+    for (int day = 1; day <= events.get(currentMonth).length; day++) {
+        CalGUI.Node current = (CalGUI.Node) events.get(currentMonth)[day - 1];
 
-            // Display events for the current day
-            while (current != null) {
-                SimpleDateFormat dateFormat = new SimpleDateFormat("dd MMMM yyyy");
-                Calendar calendar = Calendar.getInstance();
-                calendar.set(Calendar.YEAR, currentYear);
-                calendar.set(Calendar.MONTH, currentMonth);
-                calendar.set(Calendar.DAY_OF_MONTH, day);
+        // Display events for the current day
+        while (current != null) {
+            SimpleDateFormat dateFormat = new SimpleDateFormat("dd MMMM yyyy");
+            Calendar calendar = Calendar.getInstance();
+            calendar.set(Calendar.YEAR, currentYear);
+            calendar.set(Calendar.MONTH, currentMonth);
+            calendar.set(Calendar.DAY_OF_MONTH, day);
 
-                String formattedDate = dateFormat.format(calendar.getTime());
+            String formattedDate = dateFormat.format(calendar.getTime());
 
-                String formattedEvent = String.format("Event on %s: %s\n", formattedDate, current.event);
-                taskTxtArea.append(formattedEvent);
+            String formattedEvent = String.format("Event on %s: %s\n", formattedDate, current.event);
+            taskTxtArea.append(formattedEvent);
 
-                current = current.next;
-            }
+            current = current.next;
         }
     }
-    
+}
+
     // Method to handle the search operation
     private void searchEvent() {
         String searchInput = JOptionPane.showInputDialog(this, "Enter event to search:");
@@ -188,9 +201,7 @@ public class CalGUI extends javax.swing.JFrame {
     }
 
     /**
-     * This method is called from within the constructor to initialize the form.
-     * WARNING: Do NOT modify this code. The content of this method is always
-     * regenerated by the Form Editor.
+     * This method is called from within the constructor to initialize the form. WARNING: Do NOT modify this code. The content of this method is always regenerated by the Form Editor.
      */
     @SuppressWarnings("unchecked")
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
