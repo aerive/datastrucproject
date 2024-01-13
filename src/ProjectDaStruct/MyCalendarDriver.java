@@ -1,26 +1,23 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/GUIForms/JFrame.java to edit this template
- */
-//ni ada aku modify sikit and still guna gpt punya code
-package farid;
+
+package ProjectDaStruct;
 
 /**
  *
- * @author farijiha
+ * @author kori, fari and keer
+ * 
  */
+
 import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import javax.swing.*;
 import java.util.*;
 import java.text.SimpleDateFormat;
-import java.util.Date;
 import java.util.List;
 import java.util.ArrayList;
 
 
-public class CalGUI extends javax.swing.JFrame {
+public class MyCalendarDriver extends javax.swing.JFrame {
 
     private int currentMonth;
     private int currentYear;
@@ -38,7 +35,7 @@ public class CalGUI extends javax.swing.JFrame {
         }
     }
 
-    public CalGUI() {
+    public MyCalendarDriver() {
         initComponents();
 
         Calendar calendar = Calendar.getInstance();
@@ -416,28 +413,29 @@ private void searchEvent() {
                 }
             }
         } catch (ClassNotFoundException ex) {
-            java.util.logging.Logger.getLogger(CalGUI.class
+            java.util.logging.Logger.getLogger(MyCalendarDriver.class
                     .getName()).log(java.util.logging.Level.SEVERE, null, ex);
 
         } catch (InstantiationException ex) {
-            java.util.logging.Logger.getLogger(CalGUI.class
+            java.util.logging.Logger.getLogger(MyCalendarDriver.class
                     .getName()).log(java.util.logging.Level.SEVERE, null, ex);
 
         } catch (IllegalAccessException ex) {
-            java.util.logging.Logger.getLogger(CalGUI.class
+            java.util.logging.Logger.getLogger(MyCalendarDriver.class
                     .getName()).log(java.util.logging.Level.SEVERE, null, ex);
 
         } catch (javax.swing.UnsupportedLookAndFeelException ex) {
-            java.util.logging.Logger.getLogger(CalGUI.class
+            java.util.logging.Logger.getLogger(MyCalendarDriver.class
                     .getName()).log(java.util.logging.Level.SEVERE, null, ex);
         }
+        //</editor-fold>
         //</editor-fold>
 
         /* Create and display the form */
         java.awt.EventQueue.invokeLater(new Runnable() {
             @Override
             public void run() {
-                new CalGUI().setVisible(true);
+                new MyCalendarDriver().setVisible(true);
             }
         });
     }
