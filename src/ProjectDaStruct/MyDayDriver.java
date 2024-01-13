@@ -1,12 +1,10 @@
-
 package ProjectDaStruct;
 
 /**
  *
  * @author kori, fari and keer
- * 
+ *
  */
-
 import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
@@ -16,8 +14,7 @@ import java.text.SimpleDateFormat;
 import java.util.List;
 import java.util.ArrayList;
 
-
-public class MyCalendarDriver extends javax.swing.JFrame {
+public class MyDayDriver extends javax.swing.JFrame {
 
     private int currentMonth;
     private int currentYear;
@@ -35,7 +32,7 @@ public class MyCalendarDriver extends javax.swing.JFrame {
         }
     }
 
-    public MyCalendarDriver() {
+    public MyDayDriver() {
         initComponents();
 
         Calendar calendar = Calendar.getInstance();
@@ -127,101 +124,97 @@ public class MyCalendarDriver extends javax.swing.JFrame {
 
     // Method to handle adding an event for a specific day
     private void addEvent(int day) {
-    String event = JOptionPane.showInputDialog(this, "Enter event for " + monthLbl.getText() + " " + day + ":");
+        String event = JOptionPane.showInputDialog(this, "Enter event for " + monthLbl.getText() + " " + day + ":");
 
-    if (event != null && !event.isEmpty()) {
-        Node newNode = new Node(event);
+        if (event != null && !event.isEmpty()) {
+            Node newNode = new Node(event);
 
-        // Set events for the current month and year
-        Calendar calendar = Calendar.getInstance();
-        calendar.set(Calendar.YEAR, currentYear);
-        calendar.set(Calendar.MONTH, currentMonth);
-        calendar.set(Calendar.DAY_OF_MONTH, day);
-
-        // Ensure the correct month and year are used
-        int targetMonth = calendar.get(Calendar.MONTH);
-        int targetYear = calendar.get(Calendar.YEAR);
-
-        if (targetYear == currentYear && targetMonth == currentMonth) {
-            Node[] monthlyEvents = events.get(targetMonth);
-
-            if (monthlyEvents[day - 1] == null) {
-                monthlyEvents[day - 1] = newNode;
-            } else {
-                Node current = monthlyEvents[day - 1];
-                while (current.next != null) {
-                    current = current.next;
-                }
-                current.next = newNode;
-            }
-
-            // Display the updated events in the text area
-            displayEvents();
-        }
-    }
-}
-
-
-
-    // Method to display events in the text area
-    private void displayEvents() {
-    taskTxtArea.setText(""); // Clear the text area
-
-    Node[] monthlyEvents = events.get(currentMonth);
-
-    for (int day = 1; day <= monthlyEvents.length; day++) {
-        Node current = monthlyEvents[day - 1];
-
-        while (current != null) {
-            SimpleDateFormat dateFormat = new SimpleDateFormat("dd MMMM yyyy");
+            // Set events for the current month and year
             Calendar calendar = Calendar.getInstance();
             calendar.set(Calendar.YEAR, currentYear);
             calendar.set(Calendar.MONTH, currentMonth);
             calendar.set(Calendar.DAY_OF_MONTH, day);
 
-            String formattedDate = dateFormat.format(calendar.getTime());
+            // Ensure the correct month and year are used
+            int targetMonth = calendar.get(Calendar.MONTH);
+            int targetYear = calendar.get(Calendar.YEAR);
 
-            String formattedEvent = String.format("Event on %s: %s\n", formattedDate, current.event);
-            taskTxtArea.append(formattedEvent);
+            if (targetYear == currentYear && targetMonth == currentMonth) {
+                Node[] monthlyEvents = events.get(targetMonth);
 
-            current = current.next;
+                if (monthlyEvents[day - 1] == null) {
+                    monthlyEvents[day - 1] = newNode;
+                } else {
+                    Node current = monthlyEvents[day - 1];
+                    while (current.next != null) {
+                        current = current.next;
+                    }
+                    current.next = newNode;
+                }
+
+                // Display the updated events in the text area
+                displayEvents();
+            }
         }
     }
-}
+
+    // Method to display events in the text area
+    private void displayEvents() {
+        taskTxtArea.setText(""); // Clear the text area
+
+        Node[] monthlyEvents = events.get(currentMonth);
+
+        for (int day = 1; day <= monthlyEvents.length; day++) {
+            Node current = monthlyEvents[day - 1];
+
+            while (current != null) {
+                SimpleDateFormat dateFormat = new SimpleDateFormat("dd MMMM yyyy");
+                Calendar calendar = Calendar.getInstance();
+                calendar.set(Calendar.YEAR, currentYear);
+                calendar.set(Calendar.MONTH, currentMonth);
+                calendar.set(Calendar.DAY_OF_MONTH, day);
+
+                String formattedDate = dateFormat.format(calendar.getTime());
+
+                String formattedEvent = String.format("Event on %s: %s\n", formattedDate, current.event);
+                taskTxtArea.append(formattedEvent);
+
+                current = current.next;
+            }
+        }
+    }
 
     // Method to handle the search operation
-    // Method to handle the search operation
-private void searchEvent() {
-    String searchInput = JOptionPane.showInputDialog(this, "Enter event to search:");
-    List<String> matchingDates = new ArrayList<>();
+    private void searchEvent() {
+        String searchInput = JOptionPane.showInputDialog(this, "Enter event to search:");
+        List<String> matchingDates = new ArrayList<>();
 
-    // Search through the stored events in taskTxtArea
-    Scanner scanner = new Scanner(taskTxtArea.getText());
-    while (scanner.hasNextLine()) {
-        String line = scanner.nextLine();
-        if (line.contains(searchInput)) {
-            // Extract the date information from the line
-            String[] parts = line.split(":");
-            String dateInfo = parts[0].trim();
+        // Search through the stored events in taskTxtArea
+        Scanner scanner = new Scanner(taskTxtArea.getText());
+        while (scanner.hasNextLine()) {
+            String line = scanner.nextLine();
+            if (line.contains(searchInput)) {
+                // Extract the date information from the line
+                String[] parts = line.split(":");
+                String dateInfo = parts[0].trim();
 
-            // Add the matching date to the list
-            matchingDates.add(dateInfo);
+                // Add the matching date to the list
+                matchingDates.add(dateInfo);
+            }
+        }
+        scanner.close();
+
+        // Display the search results in a popup
+        if (!matchingDates.isEmpty()) {
+            StringBuilder resultMessage = new StringBuilder("Events found for: " + searchInput + "\n");
+            for (String date : matchingDates) {
+                resultMessage.append("Date: ").append(date).append("\n");
+            }
+            JOptionPane.showMessageDialog(this, resultMessage.toString());
+        } else {
+            JOptionPane.showMessageDialog(this, "Event not found.");
         }
     }
-    scanner.close();
-
-    // Display the search results in a popup
-    if (!matchingDates.isEmpty()) {
-        StringBuilder resultMessage = new StringBuilder("Events found for: " + searchInput + "\n");
-        for (String date : matchingDates) {
-            resultMessage.append("Date: ").append(date).append("\n");
-        }
-        JOptionPane.showMessageDialog(this, resultMessage.toString());
-    } else {
-        JOptionPane.showMessageDialog(this, "Event not found.");
-    }
-}
-
 
     /**
      * This method is called from within the constructor to initialize the form. WARNING: Do NOT modify this code. The content of this method is always regenerated by the Form Editor.
@@ -374,7 +367,7 @@ private void searchEvent() {
             String[] options = Arrays.copyOfRange(events, 0, events.length); // Copy the events to display in the selection box
 
             String selectedEventWithDate = (String) JOptionPane.showInputDialog(this,
-                    "Select an event to edit:", "Edit Event",
+                    "Select an event to edit or delete:", "Edit/Delete Event",
                     JOptionPane.PLAIN_MESSAGE, null, options, options[0]);
 
             if (selectedEventWithDate != null) {
@@ -383,15 +376,25 @@ private void searchEvent() {
                 String dateInfo = parts[0].trim();
                 String selectedEvent = parts[1].trim();
 
-                String editedEvent = JOptionPane.showInputDialog(this,
-                        "Edit event:", selectedEvent);
-                if (editedEvent != null && !editedEvent.trim().isEmpty()) {
-                    // Replace the selected event with the edited one in the text area
-                    taskTxtArea.setText(taskTxtArea.getText().replace(selectedEventWithDate, dateInfo + ": " + editedEvent));
+                Object[] optionsEditDelete = {"Edit Event", "Delete Event"};
+                int choice = JOptionPane.showOptionDialog(this,
+                        "Choose an action:", "Edit/Delete Event",
+                        JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE, null, optionsEditDelete, optionsEditDelete[0]);
+
+                if (choice == 0) { // Edit Event
+                    String editedEvent = JOptionPane.showInputDialog(this,
+                            "Edit event:", selectedEvent);
+                    if (editedEvent != null && !editedEvent.trim().isEmpty()) {
+                        // Replace the selected event with the edited one in the text area
+                        taskTxtArea.setText(taskTxtArea.getText().replace(selectedEventWithDate, dateInfo + ": " + editedEvent));
+                    }
+                } else if (choice == 1) { // Delete Event
+                    // Remove the selected event from the text area
+                    taskTxtArea.setText(taskTxtArea.getText().replace(selectedEventWithDate + "\n", ""));
                 }
             }
         } else {
-            JOptionPane.showMessageDialog(this, "No events to edit.");
+            JOptionPane.showMessageDialog(this, "No events to edit or delete.");
         }
     }//GEN-LAST:event_editBtnActionPerformed
 
@@ -413,21 +416,23 @@ private void searchEvent() {
                 }
             }
         } catch (ClassNotFoundException ex) {
-            java.util.logging.Logger.getLogger(MyCalendarDriver.class
+            java.util.logging.Logger.getLogger(MyDayDriver.class
                     .getName()).log(java.util.logging.Level.SEVERE, null, ex);
 
         } catch (InstantiationException ex) {
-            java.util.logging.Logger.getLogger(MyCalendarDriver.class
+            java.util.logging.Logger.getLogger(MyDayDriver.class
                     .getName()).log(java.util.logging.Level.SEVERE, null, ex);
 
         } catch (IllegalAccessException ex) {
-            java.util.logging.Logger.getLogger(MyCalendarDriver.class
+            java.util.logging.Logger.getLogger(MyDayDriver.class
                     .getName()).log(java.util.logging.Level.SEVERE, null, ex);
 
         } catch (javax.swing.UnsupportedLookAndFeelException ex) {
-            java.util.logging.Logger.getLogger(MyCalendarDriver.class
+            java.util.logging.Logger.getLogger(MyDayDriver.class
                     .getName()).log(java.util.logging.Level.SEVERE, null, ex);
         }
+        //</editor-fold>
+        //</editor-fold>
         //</editor-fold>
         //</editor-fold>
 
@@ -435,7 +440,7 @@ private void searchEvent() {
         java.awt.EventQueue.invokeLater(new Runnable() {
             @Override
             public void run() {
-                new MyCalendarDriver().setVisible(true);
+                new MyDayDriver().setVisible(true);
             }
         });
     }
