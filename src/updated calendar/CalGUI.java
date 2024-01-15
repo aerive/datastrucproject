@@ -1,9 +1,13 @@
-package ProjectDaStruct;
+/*
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
+ * Click nbfs://nbhost/SystemFileSystem/Templates/GUIForms/JFrame.java to edit this template
+ */
+//ni ada aku modify sikit and still guna gpt punya code
+package projectdatastr;
 
 /**
  *
- * @author kori, fari and keer
- *
+ * @author farijiha
  */
 import java.awt.*;
 import java.awt.event.MouseAdapter;
@@ -11,42 +15,22 @@ import java.awt.event.MouseEvent;
 import javax.swing.*;
 import java.util.*;
 import java.text.SimpleDateFormat;
-import java.util.List;
-import java.util.ArrayList;
+import java.util.Date;
 
-public class MyDayDriver extends javax.swing.JFrame {
+public class CalGUI extends javax.swing.JFrame {
 
     private int currentMonth;
     private int currentYear;
-    private java.util.List<Node[]> events;
 
-    //Node class declaration
-    public static class Node {
-
-        String event;
-        Node next;
-
-        public Node(String event) {
-            this.event = event;
-            this.next = null;
-        }
-    }
-
-    public MyDayDriver() {
+    /**
+     * Creates new form CalGUI
+     */
+    public CalGUI() {
         initComponents();
 
         Calendar calendar = Calendar.getInstance();
         currentMonth = calendar.get(Calendar.MONTH);
         currentYear = calendar.get(Calendar.YEAR);
-
-        // Initialize the events list
-        events = new ArrayList<>(12);
-        for (int month = 0; month < 12; month++) {
-            calendar.set(Calendar.MONTH, month);
-            int daysInMonth = calendar.getActualMaximum(Calendar.DAY_OF_MONTH);
-            events.add(new Node[daysInMonth]);
-        }
-
         calPanel.setLayout(new GridLayout(0, 7));
         calPanel.setPreferredSize(new Dimension(420, 300));
 
@@ -57,12 +41,18 @@ public class MyDayDriver extends javax.swing.JFrame {
     public class DatePanel extends JPanel {
 
         private JLabel label;
+        private Color backgroundColor; // New property to store the background color
 
         public DatePanel(String day) {
             setLayout(new BorderLayout());
             label = new JLabel(day, SwingConstants.CENTER);
             add(label, BorderLayout.CENTER);
             setBorder(BorderFactory.createLineBorder(Color.BLACK)); // Adding border for visibility
+        }
+
+        public void setBackgroundColor(Color color) {
+            this.backgroundColor = color;
+            setBackground(color);
         }
     }
 
@@ -96,7 +86,7 @@ public class MyDayDriver extends javax.swing.JFrame {
         Color datePanelColor = Color.PINK; // Choose your desired color here
 
         for (int day = 1; day <= numberOfDaysInMonth; day++) {
-            JPanel datePanel = new JPanel();
+            JPanel datePanel = new DatePanel(String.valueOf(day)); // Use the modified DatePanel
             datePanel.setLayout(new BorderLayout());
             datePanel.setBorder(BorderFactory.createLineBorder(Color.BLACK));
 
@@ -109,7 +99,7 @@ public class MyDayDriver extends javax.swing.JFrame {
             datePanel.addMouseListener(new MouseAdapter() {
                 @Override
                 public void mouseClicked(MouseEvent e) {
-                    addEvent(finalDay); // Call addEvent method when the panel is clicked
+                    addEvent(finalDay, (DatePanel) datePanel); // Pass the DatePanel to addEvent
                 }
             });
             // Set a uniform background color for all date panels
@@ -123,121 +113,66 @@ public class MyDayDriver extends javax.swing.JFrame {
     }
 
     // Method to handle adding an event for a specific day
-    private void addEvent(int day) {
+    private void addEvent(int day, DatePanel datePanel) {
         String event = JOptionPane.showInputDialog(this, "Enter event for " + monthLbl.getText() + " " + day + ":");
-
         if (event != null && !event.isEmpty()) {
-            // Assign a color from the predefined set to the added event
-            //Color eventColor = EVENT_COLORS[day % EVENT_COLORS.length];
+            // Set a specific color for the added event date
+            Color eventColor = generateEventColor(day);
 
-            Node newNode = new Node(event/*, eventColor*/);
+            // Set the background color of the DatePanel
+            datePanel.setBackgroundColor(eventColor);
 
-            // Set events for the current month and year
+            SimpleDateFormat dateFormat = new SimpleDateFormat("dd MMMM yyyy");
             Calendar calendar = Calendar.getInstance();
             calendar.set(Calendar.YEAR, currentYear);
             calendar.set(Calendar.MONTH, currentMonth);
             calendar.set(Calendar.DAY_OF_MONTH, day);
 
-            // Ensure the correct month and year are used
-            int targetMonth = calendar.get(Calendar.MONTH);
-            int targetYear = calendar.get(Calendar.YEAR);
+            String formattedDate = dateFormat.format(calendar.getTime());
 
-            if (targetYear == currentYear && targetMonth == currentMonth) {
-                Node[] monthlyEvents = events.get(targetMonth);
-
-                if (monthlyEvents[day - 1] == null) {
-                    monthlyEvents[day - 1] = newNode;
-                } else {
-                    Node current = monthlyEvents[day - 1];
-                    while (current.next != null) {
-                        current = current.next;
-                    }
-                    current.next = newNode;
-                }
-
-                // Display the updated events in the text area
-                displayEvents();
-            }
+            String formattedEvent = String.format("Event on %s: %s\n", formattedDate, event);
+            taskTxtArea.append(formattedEvent);
         }
     }
 
-    // Method to display events in the text area
-    private void displayEvents() {
-        taskTxtArea.setText(""); // Clear the text area
+    // Method to generate a color based on the day
+    private Color generateEventColor(int day) {
+        // Use a predefined set of colors or generate colors based on some criteria
+        Color[] eventColors = {
+            new Color(173, 216, 230), // Light Blue
+            new Color(144, 238, 144), // Light Green
+            new Color(255, 228, 196), // Bisque
+        // Add more colors as needed
+        };
 
-        Node[] monthlyEvents = events.get(currentMonth);
-
-        for (int day = 1; day <= monthlyEvents.length; day++) {
-            Node current = monthlyEvents[day - 1];
-
-            while (current != null) {
-                SimpleDateFormat dateFormat = new SimpleDateFormat("dd MMMM yyyy");
-                Calendar calendar = Calendar.getInstance();
-                calendar.set(Calendar.YEAR, currentYear);
-                calendar.set(Calendar.MONTH, currentMonth);
-                calendar.set(Calendar.DAY_OF_MONTH, day);
-
-                String formattedDate = dateFormat.format(calendar.getTime());
-
-                String formattedEvent = String.format("Event on %s: %s\n", formattedDate, current.event);
-                taskTxtArea.append(formattedEvent);
-
-                current = current.next;
-            }
-        }
+        // Use a modulus operation to cycle through the colors based on the day
+        return eventColors[day % eventColors.length];
     }
 
     // Method to handle the search operation
     private void searchEvent() {
         String searchInput = JOptionPane.showInputDialog(this, "Enter event to search:");
-        List<String> matchingDates = new ArrayList<>();
+        boolean found = false;
 
         // Search through the stored events in taskTxtArea
         Scanner scanner = new Scanner(taskTxtArea.getText());
         while (scanner.hasNextLine()) {
             String line = scanner.nextLine();
             if (line.contains(searchInput)) {
-                // Extract the date information from the line
-                String[] parts = line.split(":");
-                String dateInfo = parts[0].trim();
-
-                // Add the matching date to the list
-                matchingDates.add(dateInfo);
+                found = true;
+                break;
             }
         }
         scanner.close();
 
-        // Display the search results in a popup
-        if (!matchingDates.isEmpty()) {
-            StringBuilder resultMessage = new StringBuilder("Events found for: " + searchInput + "\n");
-            for (String date : matchingDates) {
-                resultMessage.append("Date: ").append(date).append("\n");
-            }
-            JOptionPane.showMessageDialog(this, resultMessage.toString());
+        // Show the search result in a popup
+        if (found) {
+            JOptionPane.showMessageDialog(this, "Event found: " + searchInput);
         } else {
             JOptionPane.showMessageDialog(this, "Event not found.");
         }
     }
 
-    /*private static final Color[] EVENT_COLORS = {
-        new Color(255, 0, 0), // Red
-        new Color(0, 255, 0), // Green
-        new Color(0, 0, 255), // Blue
-    };*/
-
- /*public static class Node {
-
-        String event;
-        Color eventColor; // Add color information
-
-        Node next;
-
-        public Node(String event, Color eventColor) {
-            this.event = event;
-            this.eventColor = eventColor;
-            this.next = null;
-        }
-    }*/
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -288,9 +223,7 @@ public class MyDayDriver extends javax.swing.JFrame {
         );
 
         taskTxtArea.setColumns(20);
-        taskTxtArea.setLineWrap(true);
         taskTxtArea.setRows(5);
-        taskTxtArea.setFocusable(false);
         jScrollPane1.setViewportView(taskTxtArea);
 
         searchBtn.setText("Search");
@@ -323,15 +256,15 @@ public class MyDayDriver extends javax.swing.JFrame {
                     .addGroup(layout.createSequentialGroup()
                         .addGap(55, 55, 55)
                         .addComponent(calPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 200, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 108, Short.MAX_VALUE)
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 186, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(53, 53, 53))
             .addGroup(layout.createSequentialGroup()
                 .addGap(306, 306, 306)
                 .addComponent(searchBtn, javax.swing.GroupLayout.PREFERRED_SIZE, 101, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(76, 76, 76)
                 .addComponent(editBtn, javax.swing.GroupLayout.PREFERRED_SIZE, 101, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(278, Short.MAX_VALUE))
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -390,35 +323,20 @@ public class MyDayDriver extends javax.swing.JFrame {
             String[] events = taskTxtArea.getText().split("\n");
             String[] options = Arrays.copyOfRange(events, 0, events.length); // Copy the events to display in the selection box
 
-            String selectedEventWithDate = (String) JOptionPane.showInputDialog(this,
-                    "Select an event to edit or delete:", "Edit/Delete Event",
+            String selectedEvent = (String) JOptionPane.showInputDialog(this,
+                    "Select an event to edit:", "Edit Event",
                     JOptionPane.PLAIN_MESSAGE, null, options, options[0]);
 
-            if (selectedEventWithDate != null) {
-                // Extract the event name and date from the selected event with date
-                String[] parts = selectedEventWithDate.split(":");
-                String dateInfo = parts[0].trim();
-                String selectedEvent = parts[1].trim();
-
-                Object[] optionsEditDelete = {"Edit Event", "Delete Event"};
-                int choice = JOptionPane.showOptionDialog(this,
-                        "Choose an action:", "Edit/Delete Event",
-                        JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE, null, optionsEditDelete, optionsEditDelete[0]);
-
-                if (choice == 0) { // Edit Event
-                    String editedEvent = JOptionPane.showInputDialog(this,
-                            "Edit event:", selectedEvent);
-                    if (editedEvent != null && !editedEvent.trim().isEmpty()) {
-                        // Replace the selected event with the edited one in the text area
-                        taskTxtArea.setText(taskTxtArea.getText().replace(selectedEventWithDate, dateInfo + ": " + editedEvent));
-                    }
-                } else if (choice == 1) { // Delete Event
-                    // Remove the selected event from the text area
-                    taskTxtArea.setText(taskTxtArea.getText().replace(selectedEventWithDate + "\n", ""));
+            if (selectedEvent != null) {
+                String editedEvent = JOptionPane.showInputDialog(this,
+                        "Edit event:", selectedEvent);
+                if (editedEvent != null && !editedEvent.trim().isEmpty()) {
+                    // Replace the selected event with the edited one in the text area
+                    taskTxtArea.setText(taskTxtArea.getText().replace(selectedEvent, editedEvent));
                 }
             }
         } else {
-            JOptionPane.showMessageDialog(this, "No events to edit or delete.");
+            JOptionPane.showMessageDialog(this, "No events to edit.");
         }
     }//GEN-LAST:event_editBtnActionPerformed
 
@@ -440,31 +358,28 @@ public class MyDayDriver extends javax.swing.JFrame {
                 }
             }
         } catch (ClassNotFoundException ex) {
-            java.util.logging.Logger.getLogger(MyDayDriver.class
+            java.util.logging.Logger.getLogger(CalGUI.class
                     .getName()).log(java.util.logging.Level.SEVERE, null, ex);
 
         } catch (InstantiationException ex) {
-            java.util.logging.Logger.getLogger(MyDayDriver.class
+            java.util.logging.Logger.getLogger(CalGUI.class
                     .getName()).log(java.util.logging.Level.SEVERE, null, ex);
 
         } catch (IllegalAccessException ex) {
-            java.util.logging.Logger.getLogger(MyDayDriver.class
+            java.util.logging.Logger.getLogger(CalGUI.class
                     .getName()).log(java.util.logging.Level.SEVERE, null, ex);
 
         } catch (javax.swing.UnsupportedLookAndFeelException ex) {
-            java.util.logging.Logger.getLogger(MyDayDriver.class
+            java.util.logging.Logger.getLogger(CalGUI.class
                     .getName()).log(java.util.logging.Level.SEVERE, null, ex);
         }
-        //</editor-fold>
-        //</editor-fold>
-        //</editor-fold>
         //</editor-fold>
 
         /* Create and display the form */
         java.awt.EventQueue.invokeLater(new Runnable() {
             @Override
             public void run() {
-                new MyDayDriver().setVisible(true);
+                new CalGUI().setVisible(true);
             }
         });
     }
