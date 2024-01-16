@@ -127,10 +127,8 @@ public class MyDayDriver extends javax.swing.JFrame {
         String event = JOptionPane.showInputDialog(this, "Enter event for " + monthLbl.getText() + " " + day + ":");
 
         if (event != null && !event.isEmpty()) {
-            // Assign a color from the predefined set to the added event
-            //Color eventColor = EVENT_COLORS[day % EVENT_COLORS.length];
 
-            Node newNode = new Node(event/*, eventColor*/);
+            Node newNode = new Node(event);
 
             // Set events for the current month and year
             Calendar calendar = Calendar.getInstance();
@@ -219,25 +217,6 @@ public class MyDayDriver extends javax.swing.JFrame {
         }
     }
 
-    /*private static final Color[] EVENT_COLORS = {
-        new Color(255, 0, 0), // Red
-        new Color(0, 255, 0), // Green
-        new Color(0, 0, 255), // Blue
-    };*/
-
- /*public static class Node {
-
-        String event;
-        Color eventColor; // Add color information
-
-        Node next;
-
-        public Node(String event, Color eventColor) {
-            this.event = event;
-            this.eventColor = eventColor;
-            this.next = null;
-        }
-    }*/
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always

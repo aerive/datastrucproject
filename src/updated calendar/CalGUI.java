@@ -2,7 +2,6 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
  * Click nbfs://nbhost/SystemFileSystem/Templates/GUIForms/JFrame.java to edit this template
  */
-//ni ada aku modify sikit and still guna gpt punya code
 package projectdatastr;
 
 /**
@@ -15,16 +14,41 @@ import java.awt.event.MouseEvent;
 import javax.swing.*;
 import java.util.*;
 import java.text.SimpleDateFormat;
-import java.util.Date;
 
 public class CalGUI extends javax.swing.JFrame {
 
     private int currentMonth;
     private int currentYear;
+    private Map<String, EventInfo> eventsMap = new HashMap<>(); // Declaration of eventsmap
+    private java.util.List<Integer> eventsToMarkAsDone = new java.util.ArrayList<>(); // Declaration here
 
     /**
      * Creates new form CalGUI
      */
+    private DatePanel getDatePanelByDay(int day) {
+        for (Component component : calPanel.getComponents()) {
+            if (component instanceof DatePanel) {
+                DatePanel datePanel = (DatePanel) component;
+                // Assuming each DatePanel has a JLabel with the day as text
+                if (datePanel.label.getText().equals(String.valueOf(day))) {
+                    return datePanel;
+                }
+            }
+        }
+        return null;
+    }
+
+    class EventInfo {
+
+        String event;
+        boolean isDone;
+
+        public EventInfo(String event, boolean isDone) {
+            this.event = event;
+            this.isDone = isDone;
+        }
+    }
+
     public CalGUI() {
         initComponents();
 
@@ -33,7 +57,6 @@ public class CalGUI extends javax.swing.JFrame {
         currentYear = calendar.get(Calendar.YEAR);
         calPanel.setLayout(new GridLayout(0, 7));
         calPanel.setPreferredSize(new Dimension(420, 300));
-
         updateCalendar();
         setVisible(true);
     }
@@ -54,6 +77,7 @@ public class CalGUI extends javax.swing.JFrame {
             this.backgroundColor = color;
             setBackground(color);
         }
+
     }
 
     private void updateCalendar() {
@@ -102,6 +126,12 @@ public class CalGUI extends javax.swing.JFrame {
                     addEvent(finalDay, (DatePanel) datePanel); // Pass the DatePanel to addEvent
                 }
             });
+
+            // Check if the day has been marked as done (strike-through)
+            EventInfo eventInfo = eventsMap.get(day);
+            if (eventInfo != null && eventInfo.isDone) {
+                datePanel.setBackground(Color.LIGHT_GRAY);
+            }
             // Set a uniform background color for all date panels
             datePanel.setBackground(datePanelColor);
 
@@ -119,7 +149,7 @@ public class CalGUI extends javax.swing.JFrame {
             // Set a specific color for the added event date
             Color eventColor = generateEventColor(day);
 
-            // Set the background color of the DatePanel
+            // Set the background color and strike-through status of the DatePanel
             datePanel.setBackgroundColor(eventColor);
 
             SimpleDateFormat dateFormat = new SimpleDateFormat("dd MMMM yyyy");
@@ -131,6 +161,10 @@ public class CalGUI extends javax.swing.JFrame {
             String formattedDate = dateFormat.format(calendar.getTime());
 
             String formattedEvent = String.format("Event on %s: %s\n", formattedDate, event);
+
+            // Store the event in the eventsmap with the formatted date as the key
+            eventsMap.put(formattedDate, new EventInfo(event, false));
+
             taskTxtArea.append(formattedEvent);
         }
     }
@@ -173,6 +207,7 @@ public class CalGUI extends javax.swing.JFrame {
         }
     }
 
+    
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -245,26 +280,26 @@ public class CalGUI extends javax.swing.JFrame {
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
                     .addGroup(layout.createSequentialGroup()
-                        .addGap(225, 225, 225)
-                        .addComponent(prevBtn)
-                        .addGap(5, 5, 5)
-                        .addComponent(monthLbl)
-                        .addGap(5, 5, 5)
-                        .addComponent(nextBtn))
-                    .addGroup(layout.createSequentialGroup()
-                        .addGap(55, 55, 55)
-                        .addComponent(calPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                        .addGap(207, 207, 207)
+                        .addComponent(searchBtn, javax.swing.GroupLayout.PREFERRED_SIZE, 101, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(106, 106, 106)
+                        .addComponent(editBtn, javax.swing.GroupLayout.PREFERRED_SIZE, 101, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                        .addGroup(layout.createSequentialGroup()
+                            .addGap(225, 225, 225)
+                            .addComponent(prevBtn)
+                            .addGap(5, 5, 5)
+                            .addComponent(monthLbl)
+                            .addGap(5, 5, 5)
+                            .addComponent(nextBtn))
+                        .addGroup(layout.createSequentialGroup()
+                            .addGap(55, 55, 55)
+                            .addComponent(calPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 108, Short.MAX_VALUE)
                 .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 186, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(53, 53, 53))
-            .addGroup(layout.createSequentialGroup()
-                .addGap(306, 306, 306)
-                .addComponent(searchBtn, javax.swing.GroupLayout.PREFERRED_SIZE, 101, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(76, 76, 76)
-                .addComponent(editBtn, javax.swing.GroupLayout.PREFERRED_SIZE, 101, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
