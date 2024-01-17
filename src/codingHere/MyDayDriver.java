@@ -1,13 +1,9 @@
-
-
 /**
- @author kori, fari and keer
+ * @author kori, fari and keer
  */
 package codingHere;
 
 //List of all packages that needed all in the jdk 19
-
-
 import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
@@ -220,7 +216,17 @@ public class MyDayDriver extends javax.swing.JFrame {
         }
     }
 
-    
+    private void handleEditEvent(String selectedEventWithDate, String dateInfo, String selectedEvent) {
+        String editedEvent = JOptionPane.showInputDialog(this, "Edit event:", selectedEvent);
+        if (editedEvent != null && !editedEvent.trim().isEmpty()) {
+            taskTxtArea.setText(taskTxtArea.getText().replace(selectedEventWithDate, dateInfo + ": " + editedEvent));
+        }
+    }
+
+    private void handleDeleteEvent(String selectedEventWithDate) {
+        taskTxtArea.setText(taskTxtArea.getText().replace(selectedEventWithDate + "\n", ""));
+    }
+
     @SuppressWarnings("unchecked")
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
@@ -359,7 +365,7 @@ public class MyDayDriver extends javax.swing.JFrame {
         }
         updateCalendar();
     }//GEN-LAST:event_nextBtnActionPerformed
-    
+
     //Searching method
     private void searchBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_searchBtnActionPerformed
         // TODO add your handling code here:String searchTerm = JOptionPane.showInputDialog(this, "Enter event to search:");
@@ -370,14 +376,13 @@ public class MyDayDriver extends javax.swing.JFrame {
     private void editBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_editBtnActionPerformed
         if (!taskTxtArea.getText().isEmpty()) {
             String[] events = taskTxtArea.getText().split("\n");
-            String[] options = Arrays.copyOfRange(events, 0, events.length); // Copy the events to display in the selection box
+            String[] options = Arrays.copyOfRange(events, 0, events.length);
 
             String selectedEventWithDate = (String) JOptionPane.showInputDialog(this,
                     "Select an event to edit or delete:", "Edit/Delete Event",
                     JOptionPane.PLAIN_MESSAGE, null, options, options[0]);
 
             if (selectedEventWithDate != null) {
-                // Extract the event name and date from the selected event with date
                 String[] parts = selectedEventWithDate.split(":");
                 String dateInfo = parts[0].trim();
                 String selectedEvent = parts[1].trim();
@@ -387,21 +392,16 @@ public class MyDayDriver extends javax.swing.JFrame {
                         "Choose an action:", "Edit/Delete Event",
                         JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE, null, optionsEditDelete, optionsEditDelete[0]);
 
-                if (choice == 0) { // Edit Event
-                    String editedEvent = JOptionPane.showInputDialog(this,
-                            "Edit event:", selectedEvent);
-                    if (editedEvent != null && !editedEvent.trim().isEmpty()) {
-                        // Replace the selected event with the edited one in the text area
-                        taskTxtArea.setText(taskTxtArea.getText().replace(selectedEventWithDate, dateInfo + ": " + editedEvent));
-                    }
-                } else if (choice == 1) { // Delete Event
-                    // Remove the selected event from the text area
-                    taskTxtArea.setText(taskTxtArea.getText().replace(selectedEventWithDate + "\n", ""));
+                if (choice == 0) {
+                    handleEditEvent(selectedEventWithDate, dateInfo, selectedEvent);
+                } else if (choice == 1) {
+                    handleDeleteEvent(selectedEventWithDate);
                 }
             }
         } else {
             JOptionPane.showMessageDialog(this, "No events to edit or delete.");
         }
+
     }//GEN-LAST:event_editBtnActionPerformed
 
     //Main method :D
@@ -436,7 +436,7 @@ public class MyDayDriver extends javax.swing.JFrame {
                     .getName()).log(java.util.logging.Level.SEVERE, null, ex);
         }
         //</editor-fold>
-        
+
         /* Create and display the form */
         java.awt.EventQueue.invokeLater(new Runnable() {
             @Override
