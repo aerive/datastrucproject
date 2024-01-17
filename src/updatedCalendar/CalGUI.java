@@ -2,7 +2,7 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
  * Click nbfs://nbhost/SystemFileSystem/Templates/GUIForms/JFrame.java to edit this template
  */
-package projectdatastr;
+package updatedCalendar;
 
 /**
  *
@@ -149,7 +149,7 @@ public class CalGUI extends javax.swing.JFrame {
             // Set a specific color for the added event date
             Color eventColor = generateEventColor(day);
 
-            // Set the background color and strike-through status of the DatePanel
+            // Set the background color and of the DatePanel
             datePanel.setBackgroundColor(eventColor);
 
             SimpleDateFormat dateFormat = new SimpleDateFormat("dd MMMM yyyy");

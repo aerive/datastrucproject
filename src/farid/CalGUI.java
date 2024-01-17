@@ -192,7 +192,18 @@ public class CalGUI extends javax.swing.JFrame {
     }
 }
 
-    // Method to handle the search operation
+    private Color generateEventColor(int day) {
+        // Use a predefined set of colors or generate colors based on some criteria
+        Color[] eventColors = {
+            new Color(173, 216, 230), // Light Blue
+            new Color(144, 238, 144), // Light Green
+            new Color(255, 228, 196), // Bisque
+        // Add more colors as needed
+        };
+
+        // Use a modulus operation to cycle through the colors based on the day
+        return eventColors[day % eventColors.length];
+    }
     // Method to handle the search operation
 private void searchEvent() {
     String searchInput = JOptionPane.showInputDialog(this, "Enter event to search:");
