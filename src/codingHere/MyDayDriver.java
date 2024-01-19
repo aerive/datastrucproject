@@ -48,6 +48,7 @@ public class MyDayDriver extends javax.swing.JFrame {
 
         calPanel.setLayout(new GridLayout(0, 7));
         calPanel.setPreferredSize(new Dimension(420, 300));
+        setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
         updateCalendar();
         setVisible(true);
@@ -108,7 +109,7 @@ public class MyDayDriver extends javax.swing.JFrame {
             datePanel.addMouseListener(new MouseAdapter() {
                 @Override
                 public void mouseClicked(MouseEvent e) {
-                    addEvent(finalDay); // Call addEvent method when the panel is clicked
+                    addEvent(finalDay);
                 }
             });
             // Set a uniform background color for all date panels
